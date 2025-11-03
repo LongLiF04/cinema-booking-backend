@@ -51,13 +51,13 @@ Dự án sử dụng biến môi trường để cấu hình các thông tin qua
 
 Mặc định, ứng dụng sẽ khởi chạy tại `http://localhost:8080`.
 
-## 3. API Documentation (Swagger UI)
+## 5. API Documentation (Swagger UI)
 
 Sau khi khởi chạy thành công, bạn có thể truy cập vào giao diện Swagger UI để xem tài liệu chi tiết về các API và thực hiện gọi thử.
 
 - **Đường dẫn Swagger UI:** http://localhost:8080/swagger-ui.html
 
-## 4. Quản lý Database Migration với Liquibase
+## 6. Quản lý Database Migration với Liquibase
 
 ### Thêm một migration mới
 Khi bạn thay đổi các class Entity (JPA), bạn có thể tự động tạo một file changeset mới để cập nhật schema cho cơ sở dữ liệu bằng lệnh sau:
