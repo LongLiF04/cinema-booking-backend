@@ -19,7 +19,7 @@ import java.util.UUID;
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EmployeeMapper {
     @Mapping(target = "userId", source = "userId")
-    Employee toEntity(EmployeeCreateRequest request, @Context UUID userId);
+    Employee toEntity(EmployeeCreateRequest request, UUID userId);
 
     EmployeeResponse toResponse(Employee employee);
     EmployeeResponse toResponse(Employee employee, @Context Map<Object, Object> context);
