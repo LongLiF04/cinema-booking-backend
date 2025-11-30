@@ -1,0 +1,346 @@
+{
+  "info": {
+    "name": "CineBook - Customer API",
+    "description": "Collection để test Customer module",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "customerId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login as ADMIN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('adminToken', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin01\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login as CUSTOMER",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('customerToken', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"customer_gold\",\n  \"password\": \"Customer@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Customer CRUD (ADMIN)",
+      "item": [
+        {
+          "name": "Create Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('customerId', jsonData.data.userId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{adminToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newcustomer\",\n  \"password\": \"Customer@123\",\n  \"name\": \"Khách Hàng Mới\",\n  \"email\": \"newcustomer@gmail.com\",\n  \"phone\": \"0966666666\",\n  \"dateOfBirth\": \"1995-06-15\",\n  \"gender\": \"MALE\",\n  \"address\": \"999 Test Street\",\n  \"city\": \"Đà Nẵng\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers"]
+            }
+          }
+        },
+        {
+          "name": "Get Customer by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{adminToken}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{adminToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Khách Hàng Updated\",\n  \"phone\": \"0977777777\",\n  \"address\": \"New Address 123\",\n  \"city\": \"Hồ Chí Minh\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Customer",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{adminToken}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Customer Search",
+      "item": [
+        {
+          "name": "Search All Customers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{adminToken}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/search?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "search"],
+              "query": [
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search by Keyword",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{adminToken}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/search?keyword=nguyen&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "search"],
+              "query": [
+                {"key": "keyword", "value": "nguyen"},
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search by Membership Level",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{adminToken}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/search?membershipLevel=GOLD&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "search"],
+              "query": [
+                {"key": "membershipLevel", "value": "GOLD"},
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search by City",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{adminToken}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/search?city=Hồ Chí Minh&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "search"],
+              "query": [
+                {"key": "city", "value": "Hồ Chí Minh"},
+                {"key": "page", "value": "0"},
+                {"key": "size", "value": "10"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Customer Self-Service (/me)",
+      "item": [
+        {
+          "name": "Get My Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{customerToken}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "me"]
+            }
+          }
+        },
+        {
+          "name": "Update My Info",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{customerToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tên Mới\",\n  \"phone\": \"0988888888\",\n  \"dateOfBirth\": \"1990-01-01\",\n  \"address\": \"Địa chỉ mới\",\n  \"city\": \"Thành phố mới\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Negative Tests",
+      "item": [
+        {
+          "name": "Create Customer - Duplicate Username",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{adminToken}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"customer_gold\",\n  \"password\": \"Test@123\",\n  \"name\": \"Duplicate\",\n  \"email\": \"duplicate@gmail.com\",\n  \"phone\": \"0999999999\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers"]
+            }
+          }
+        },
+        {
+          "name": "Get Customer - Without Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "{{customerId}}"]
+            }
+          }
+        },
+        {
+          "name": "Customer Access Other Customer Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Authorization", "value": "Bearer {{customerToken}}"}
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/40000000-0000-0000-0000-000000000001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customers", "40000000-0000-0000-0000-000000000001"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
