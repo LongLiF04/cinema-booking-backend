@@ -26,6 +26,7 @@ import com.example.CineBook.service.AuthService;
 import com.example.CineBook.service.SysPermissionService;
 import com.example.CineBook.service.SysUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -41,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
     private final SysUserRepository userRepository;
     private final SysRoleRepository sysRoleRepository;
@@ -75,6 +77,7 @@ public class AuthServiceImpl implements AuthService {
 
         // Create new user
         SysUser user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
 
         // Assign default CUSTOMER role and set typeAccount
