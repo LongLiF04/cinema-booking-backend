@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: cinebook-postgres-dev
+    environment:
+      POSTGRES_DB: cinebook_db
+      POSTGRES_USER: cinebook_user
+      POSTGRES_PASSWORD: cinebook_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    networks:
+      - cinebook-network-dev
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: cinebook-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_dev:/data
+    networks:
+      - cinebook-network-dev
+
+volumes:
+  postgres_data_dev:
+  redis_data_dev:
+
+networks:
+  cinebook-network-dev:
+    driver: bridge

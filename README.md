@@ -35,21 +35,83 @@ Người dùng có thể xem danh sách phim, chọn suất chiếu, chọn gh�
 
 ## 4. Hướng dẫn chạy dự án
 
-### yêu cầu
+### Yêu cầu
+- **Docker** và **Docker Compose** (Khuyến nghị)
+- Hoặc: JDK 17+, Maven 3.8+, PostgreSQL, Redis
+
+### Cách 1: Chạy với Docker (Khuyến nghị)
+
+#### Bước 1: Clone dự án
+```bash
+git clone <repository-url>
+cd CineBook
+```
+
+#### Bước 2: Cấu hình biến môi trường (Tùy chọn)
+Sao chép file `.env.example` thành `.env` và chỉnh sửa nếu cần:
+```bash
+cp .env.example .env
+```
+
+#### Bước 3: Chạy toàn bộ ứng dụng
+```bash
+docker-compose up -d
+```
+
+Ứng dụng sẽ chạy tại: `http://localhost:8080`
+
+#### Dừng ứng dụng
+```bash
+docker-compose down
+```
+
+#### Xóa dữ liệu và khởi động lại
+```bash
+docker-compose down -v
+docker-compose up -d
+```
+
+### Cách 2: Chạy môi trường Development
+
+Chỉ chạy PostgreSQL và Redis, code chạy trên máy local:
+
+```bash
+# Chạy database và redis
+docker-compose -f docker-compose.dev.yml up -d
+
+# Chạy ứng dụng Spring Boot
+mvn spring-boot:run
+```
+
+### Cách 3: Chạy thủ công (Không dùng Docker)
+
+#### Yêu cầu
 - JDK 17 hoặc cao hơn
-    - Maven 3.8+
+- Maven 3.8+
+- PostgreSQL 15+
+- Redis 7+
 
-### Cấu hình
-Dự án sử dụng biến môi trường để cấu hình các thông tin quan trọng. Hãy đảm bảo các biến môi trường sau đã được thiết lập trên hệ thống của bạn:
+#### Cấu hình biến môi trường
+Thiết lập các biến môi trường sau:
 
-- `DB_URL`: URL kết nối tới cơ sở dữ liệu.
-    - *Ví dụ:* `jdbc:postgresql://localhost:5432/cinebook_db`
-- `DB_USERNAME`: Tên đăng nhập cơ sở dữ liệu.
-- `DB_PASSWORD`: Mật khẩu cơ sở dữ liệu.
-- `JWT_SECRET`: Chuỗi bí mật để ký và xác thực JSON Web Tokens.
-- `JWT_EXPIRATION_MS`: Thời gian hết hạn của JWT (tính bằng mili giây).
+- `DB_URL`: `jdbc:postgresql://localhost:5432/cinebook_db`
+- `DB_USERNAME`: Tên đăng nhập database
+- `DB_PASSWORD`: Mật khẩu database
+- `JWT_SECRET`: Chuỗi bí mật (tối thiểu 256 bits)
+- `JWT_EXPIRATION_MS`: `86400000` (24 giờ)
+- `EMAIL_USERNAME`: Email Gmail
+- `EMAIL_PASSWORD`: App password của Gmail
 
-Mặc định, ứng dụng sẽ khởi chạy tại `http://localhost:8080`.
+#### Chạy ứng dụng
+```bash
+mvn clean install
+mvn spring-boot:run
+```
+
+### Tài khoản mặc định
+Sau khi khởi động, hệ thống tự động tạo tài khoản Super Admin:
+- **Username**: `superadmin`
+- **Password**: `Admin@123`
 
 ## 5. API Documentation (Swagger UI)
 
