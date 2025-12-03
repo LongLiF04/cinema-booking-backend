@@ -4,10 +4,7 @@ import com.example.CineBook.model.auditing.AuditingEntity;
 import com.example.CineBook.model.auditing.AuditingEntityListener;
 import jakarta.persistence.*;
 import jakarta.persistence.metamodel.StaticMetamodel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -19,6 +16,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "branches")
 @Data
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

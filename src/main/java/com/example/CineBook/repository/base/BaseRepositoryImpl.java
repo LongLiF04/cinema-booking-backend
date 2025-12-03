@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class BaseRepositoryImpl<T, S extends SearchBaseDto> implements  BaseRepositoryCustom<T, S> {
+public abstract class BaseRepositoryImpl<T, S extends SearchBaseDto> implements  BaseRepositoryCustom<T, S> {
 
     @PersistenceContext
     protected EntityManager entityManager;
