@@ -31,8 +31,8 @@ public class EmployeeCreateRequest {
     @NotBlank(message = "{EMPLOYEE_CODE_REQUIRED}")
     private String employeeCode;
 
-    @NotBlank(message = "{EMPLOYEE_POSITION_REQUIRED}")
-    private String position;
+    @NotNull(message = "{EMPLOYEE_POSITION_REQUIRED}")
+    private UUID positionId;
 
     private BigDecimal salary;
 

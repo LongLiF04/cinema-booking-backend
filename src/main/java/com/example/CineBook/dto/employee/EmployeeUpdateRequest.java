@@ -11,7 +11,7 @@ public class EmployeeUpdateRequest {
     private BigDecimal salary;
     private LocalDate hireDate;
     private UUID branchId;
-    private String position;
+    private UUID positionId;
     private String name;
     private String email;
     private String phone;

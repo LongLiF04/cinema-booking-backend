@@ -18,7 +18,8 @@ public class EmployeeResponse {
     private UUID branchId;
     private String branchName;
     private String employeeCode;
-    private String position;
+    private UUID positionId;
+    private String positionName;
     private BigDecimal salary;
     private LocalDate hireDate;
     private String role;

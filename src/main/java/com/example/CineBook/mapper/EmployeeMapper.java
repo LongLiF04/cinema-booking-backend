@@ -21,7 +21,12 @@ public interface EmployeeMapper {
     @Mapping(target = "userId", source = "userId")
     Employee toEntity(EmployeeCreateRequest request, UUID userId);
 
+    @Mapping(target = "positionName", ignore = true)
+    @Mapping(target = "branchName", ignore = true)
     EmployeeResponse toResponse(Employee employee);
+    
+    @Mapping(target = "positionName", ignore = true)
+    @Mapping(target = "branchName", ignore = true)
     EmployeeResponse toResponse(Employee employee, @Context Map<Object, Object> context);
 
     default Page<EmployeeResponse> mapPage(Page<Employee> entityPage, Map<Object, Object> context) {

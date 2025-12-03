@@ -1,5 +1,6 @@
 package com.example.CineBook.service.impl;
 
+import com.example.CineBook.common.constant.PositionEnum;
 import com.example.CineBook.common.dto.response.PageResponse;
 import com.example.CineBook.common.exception.BusinessException;
 import com.example.CineBook.common.exception.MessageCode;
@@ -15,6 +16,7 @@ import com.example.CineBook.model.Employee;
 import com.example.CineBook.model.SysRole;
 import com.example.CineBook.repository.irepository.BranchRepository;
 import com.example.CineBook.repository.irepository.EmployeeRepository;
+import com.example.CineBook.repository.irepository.PositionRepository;
 import com.example.CineBook.repository.irepository.SysRoleRepository;
 import com.example.CineBook.repository.irepository.SysUserRepository;
 import com.example.CineBook.service.EmployeeService;
@@ -37,6 +39,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final SysRoleRepository sysRoleRepository;
     private final SysUserService sysUserService;
     private final BranchRepository branchRepository;
+    private final PositionRepository positionRepository;
+    private final SysUserRepository sysUserRepository;
 
     private static final String ROLE_STAFF_CODE = "STAFF";
 
@@ -48,11 +52,10 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new BusinessException(MessageCode.EMPLOYEE_CODE_ALREADY_EXISTS);
         }
 
-        // Validate position
-        try {
-            com.example.CineBook.common.constant.PositionEnum.fromValue(request.getPosition());
-        } catch (IllegalArgumentException e) {
-            throw new BusinessException(MessageCode.INVALID_POSITION);
+        // Validate position exists
+        if (request.getPositionId() != null) {
+            positionRepository.findById(request.getPositionId())
+                    .orElseThrow(() -> new BusinessException(MessageCode.POSITION_NOT_FOUND));
         }
 
         // find staff role id by code
@@ -80,7 +83,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = employeeMapper.toEntity(request, createdUser.getId());
         Employee saved = employeeRepository.save(employee);
 
-        return employeeMapper.toResponse(saved);
+        return enrichEmployeeResponse(saved);
     }
 
     @Override
@@ -104,7 +107,33 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = employeeRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(MessageCode.EMPLOYEE_NOT_FOUND));
 
-        return employeeMapper.toResponse(employee);
+        return enrichEmployeeResponse(employee);
+    }
+
+    private EmployeeResponse enrichEmployeeResponse(Employee employee) {
+        EmployeeResponse response = employeeMapper.toResponse(employee);
+        
+        // Fetch user info
+        sysUserRepository.findById(employee.getUserId()).ifPresent(user -> {
+            response.setUsername(user.getUsername());
+            response.setName(user.getName());
+            response.setEmail(user.getEmail());
+            response.setPhone(user.getPhone());
+        });
+        
+        // Fetch position name
+        if (employee.getPositionId() != null) {
+            positionRepository.findById(employee.getPositionId())
+                    .ifPresent(position -> response.setPositionName(position.getName()));
+        }
+        
+        // Fetch branch name
+        if (employee.getBranchId() != null) {
+            branchRepository.findById(employee.getBranchId())
+                    .ifPresent(branch -> response.setBranchName(branch.getName()));
+        }
+        
+        return response;
     }
 
     @Override
@@ -124,17 +153,14 @@ public class EmployeeServiceImpl implements EmployeeService {
                     .orElseThrow(() -> new BusinessException(MessageCode.BRANCH_NOT_FOUND));
             employee.setBranchId(request.getBranchId());
         }
-        if (request.getPosition() != null) {
-            try {
-                com.example.CineBook.common.constant.PositionEnum.fromValue(request.getPosition());
-                employee.setPosition(request.getPosition());
-            } catch (IllegalArgumentException e) {
-                throw new BusinessException(MessageCode.INVALID_POSITION);
-            }
+        if (request.getPositionId() != null) {
+            positionRepository.findById(request.getPositionId())
+                    .orElseThrow(() -> new BusinessException(MessageCode.POSITION_NOT_FOUND));
+            employee.setPositionId(request.getPositionId());
         }
 
         Employee updated = employeeRepository.save(employee);
-        return employeeMapper.toResponse(updated);
+        return enrichEmployeeResponse(updated);
     }
 
     @Override
@@ -149,7 +175,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setBranchId(branchId);
         Employee updated = employeeRepository.save(employee);
 
-        return employeeMapper.toResponse(updated);
+        return enrichEmployeeResponse(updated);
     }
 
     @Override

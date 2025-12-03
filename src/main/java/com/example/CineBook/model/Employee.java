@@ -29,8 +29,8 @@ public class Employee extends AuditingEntity {
     @Column(name = "employee_code", unique = true)
     private String employeeCode; // Ex: NV001
 
-    @Column(name = "position")
-    private String position;
+    @Column(name = "position_id")
+    private UUID positionId;
     
     @Column
     private BigDecimal salary;
