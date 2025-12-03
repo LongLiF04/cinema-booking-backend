@@ -1,10 +1,11 @@
 package com.example.CineBook.common.security;
 
-import com.example.CineBook.common.constant.PositionEnum;
 import com.example.CineBook.common.exception.BusinessException;
 import com.example.CineBook.common.exception.MessageCode;
 import com.example.CineBook.model.Employee;
+import com.example.CineBook.model.Position;
 import com.example.CineBook.repository.irepository.EmployeeRepository;
+import com.example.CineBook.repository.irepository.PositionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -26,6 +27,7 @@ import java.util.UUID;
 public class PositionCheckAspect {
 
     private final EmployeeRepository employeeRepository;
+    private final PositionRepository positionRepository;
 
     /**
      * Kiểm tra position trước khi thực thi method.
@@ -42,7 +44,7 @@ public class PositionCheckAspect {
         UUID userId = SecurityUtils.getCurrentUserId();
         
         // Kiểm tra user có phải là employee không
-        Employee employee = employeeRepository.findById(userId)
+        Employee employee = employeeRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(MessageCode.NOT_EMPLOYEE));
         
         // Kiểm tra employee có bị soft delete không
@@ -50,25 +52,28 @@ public class PositionCheckAspect {
             throw new BusinessException(MessageCode.EMPLOYEE_NOT_FOUND);
         }
         
-        // Lấy danh sách position được phép
-        PositionEnum[] allowedPositions = requirePosition.value();
+        // Lấy danh sách position code được phép
+        String[] allowedPositionCodes = requirePosition.value();
         
-        // Lấy position hiện tại của employee
-        PositionEnum currentPosition;
-        try {
-            currentPosition = PositionEnum.fromValue(employee.getPosition());
-        } catch (IllegalArgumentException e) {
-            log.error("Invalid position value: {}", employee.getPosition());
+        // Lấy position hiện tại của employee từ DB
+        UUID currentPositionId = employee.getPositionId();
+        if (currentPositionId == null) {
+            log.warn("Employee {} has no position assigned", userId);
             throw new BusinessException(MessageCode.INVALID_POSITION);
         }
         
-        // Kiểm tra position có trong danh sách cho phép không
-        if (!Arrays.asList(allowedPositions).contains(currentPosition)) {
+        Position currentPosition = positionRepository.findById(currentPositionId)
+                .orElseThrow(() -> new BusinessException(MessageCode.POSITION_NOT_FOUND));
+        
+        // Kiểm tra position code có trong danh sách cho phép không
+        boolean isAllowed = Arrays.asList(allowedPositionCodes).contains(currentPosition.getCode());
+        
+        if (!isAllowed) {
             log.warn("User {} with position {} tried to access method requiring positions: {}", 
-                    userId, currentPosition, Arrays.toString(allowedPositions));
+                    userId, currentPosition.getCode(), Arrays.toString(allowedPositionCodes));
             throw new BusinessException(MessageCode.INSUFFICIENT_POSITION);
         }
         
-        log.debug("Position check passed for user {} with position {}", userId, currentPosition);
+        log.debug("Position check passed for user {} with position {}", userId, currentPosition.getCode());
     }
 }
