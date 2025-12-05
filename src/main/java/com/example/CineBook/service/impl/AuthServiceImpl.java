@@ -61,18 +61,18 @@ public class AuthServiceImpl implements AuthService {
     public RegisterResponse register(RegisterRequest request) {
         // Validate password match
         if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new IllegalArgumentException(MessageCode.PASSWORD_RESET_FAILED.name());
+            throw new BusinessException(MessageCode.PASSWORD_RESET_FAILED);
         }
 
         // Check existing user
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException(MessageCode.USERNAME_ALREADY_EXISTS.name());
+            throw new BusinessException(MessageCode.USERNAME_ALREADY_EXISTS);
         }
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException(MessageCode.EMAIL_ALREADY_EXISTS.name());
+            throw new BusinessException(MessageCode.EMAIL_ALREADY_EXISTS);
         }
         if (userRepository.existsByPhone(request.getPhone())) {
-            throw new IllegalArgumentException(MessageCode.PHONE_ALREADY_EXISTS.name());
+            throw new BusinessException(MessageCode.PHONE_ALREADY_EXISTS);
         }
 
         // Create new user
@@ -95,11 +95,11 @@ public class AuthServiceImpl implements AuthService {
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request, String device, String ipAddress) {
         SysUser user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException(MessageCode.ACCOUNT_NOT_EXISTS.name()));
+                .orElseThrow(() -> new BusinessException(MessageCode.ACCOUNT_NOT_EXISTS));
 
         // if the account is locked
         if (user.getLockFlag().equals(LockFlag.LOCK.getValue())) {
-            throw new IllegalArgumentException(MessageCode.ACCOUNT_LOCKED.name());
+            throw new BusinessException(MessageCode.ACCOUNT_LOCKED);
         }
 
         // if the password is wrong
@@ -109,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
                 user.setLockFlag(LockFlag.LOCK.getValue());
             }
             userRepository.save(user);
-            throw new IllegalArgumentException(MessageCode.PASSWORD_WRONG.name());
+            throw new BusinessException(MessageCode.PASSWORD_WRONG);
         }
 
         // if login wrong > 0 then update failedLoginAttempts = 0
@@ -120,7 +120,7 @@ public class AuthServiceImpl implements AuthService {
 
         // if the account is locked
         if (user.getLockFlag().equals(LockFlag.LOCK.getValue())) {
-            throw new IllegalArgumentException("Tài khoản đã bị khóa");
+            throw new BusinessException(MessageCode.ACCOUNT_LOCKED);
         }
 
         return buildLoginResponse(user, device, ipAddress);
