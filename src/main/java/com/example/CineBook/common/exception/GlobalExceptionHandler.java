@@ -144,11 +144,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<?> handleBusinessException(BusinessException ex, HttpServletRequest request) {
         MessageCode messageCode = ex.getMessageCode();
+        log.warn("BusinessException for request {}: {}", request.getRequestURI(), messageCode);
         HttpStatus status = switch (messageCode) {
             case SYS_ROLE_NOT_FOUND, USER_NOT_FOUND, CATEGORY_NOT_FOUND -> HttpStatus.NOT_FOUND;
-            case SYS_ROLE_CODE_ALREADY_EXISTS, EMAIL_ALREADY_EXISTS, USERNAME_ALREADY_EXISTS -> HttpStatus.CONFLICT;
+            case SYS_ROLE_CODE_ALREADY_EXISTS, EMAIL_ALREADY_EXISTS, USERNAME_ALREADY_EXISTS, PHONE_ALREADY_EXISTS -> HttpStatus.CONFLICT;
             case SYS_ROLE_CANNOT_DELETE_SYSTEM_ROLE, SYS_ROLE_CANNOT_MODIFY_SYSTEM_ROLE_PERMISSIONS, ACCOUNT_LOCKED,
                  FORBIDDEN -> HttpStatus.FORBIDDEN;
+            case PASSWORD_WRONG, ACCOUNT_NOT_EXISTS -> HttpStatus.UNAUTHORIZED;
             default -> HttpStatus.BAD_REQUEST;
         };
         return adaptResponseForCurrentContentType(ApiResponse.fail(messageCode), status, request);

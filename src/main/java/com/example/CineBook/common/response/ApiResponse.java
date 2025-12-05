@@ -30,21 +30,13 @@ public class ApiResponse<T> {
     }
 
     /**
-     * Helper nội bộ để lấy message đã được dịch từ MessageUtil.
+     * Helper nội bộ để lấy message từ MessageCode.
      *
      * @param messageCode Enum MessageCode.
-     * @param args        Các tham số cho message (nếu có).
-     * @return Chuỗi message đã được dịch.
+     * @return Chuỗi message.
      */
-    private static String getI18nMessage(MessageCode messageCode, Object... args) {
-        try {
-            // Sử dụng cầu nối để lấy bean MessageUtil và gọi phương thức getMessage
-            MessageUtil messageUtil = StaticContextAccessor.getBean(MessageUtil.class);
-            return messageUtil.getMessage(messageCode, args);
-        } catch (Exception e) {
-            // Fallback an toàn nếu có lỗi xảy ra (ví dụ: context chưa sẵn sàng)
-            return messageCode.name();
-        }
+    private static String getI18nMessage(MessageCode messageCode) {
+        return messageCode.getMessage() != null ? messageCode.getMessage() : messageCode.name();
     }
 
     // =================================================================
@@ -109,11 +101,18 @@ public class ApiResponse<T> {
         return new ApiResponse<>(false, getI18nMessage(messageCode), messageCode.name(), data, status, null);
     }
 
+//    /**
+//     * Trả về response thất bại với message i18n có tham số, status code tùy chỉnh.
+//     */
+//    public static <T> ApiResponse<T> fail(MessageCode messageCode, int status, Object... args) {
+//        return new ApiResponse<>(false, getI18nMessage(messageCode, args), messageCode.name(), null, status, null);
+//    }
+
     /**
-     * Trả về response thất bại với message i18n có tham số, status code tùy chỉnh.
+     * Trả về response thất bại với message tùy chỉnh, status code tùy chỉnh.
      */
-    public static <T> ApiResponse<T> fail(MessageCode messageCode, int status, Object... args) {
-        return new ApiResponse<>(false, getI18nMessage(messageCode, args), messageCode.name(), null, status, null);
+    public static <T> ApiResponse<T> fail(MessageCode messageCode, int status, String customMessage) {
+        return new ApiResponse<>(false, customMessage, messageCode.name(), null, status, null);
     }
 
     /**
