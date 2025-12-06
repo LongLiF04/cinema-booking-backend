@@ -63,6 +63,13 @@ public class RoomController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
+    @PutMapping("/{id}/restore")
+//    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
+    @Operation(summary = "Khôi phục phòng đã xóa mềm")
+    public ResponseEntity<ApiResponse<RoomResponse>> restoreRoom(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success(roomService.restoreRoom(id)));
+    }
+
     @GetMapping("/search")
 //    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN', 'STAFF')")
     @Operation(summary = "Tìm kiếm và lọc phòng chiếu")

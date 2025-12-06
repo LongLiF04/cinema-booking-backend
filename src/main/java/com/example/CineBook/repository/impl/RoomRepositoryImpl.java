@@ -3,6 +3,7 @@ package com.example.CineBook.repository.impl;
 import com.example.CineBook.dto.room.RoomSearchDTO;
 import com.example.CineBook.model.Room;
 import com.example.CineBook.model.Room_;
+import com.example.CineBook.repository.base.BaseRepositoryImpl;
 import com.example.CineBook.repository.custom.RoomRepositoryCustom;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -18,9 +19,14 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public class RoomRepositoryImpl implements RoomRepositoryCustom {
+public class RoomRepositoryImpl extends BaseRepositoryImpl<Room, RoomSearchDTO> implements RoomRepositoryCustom {
+
+    public RoomRepositoryImpl() {
+        super(Room.class);
+    }
 
     @PersistenceContext
     private EntityManager entityManager;

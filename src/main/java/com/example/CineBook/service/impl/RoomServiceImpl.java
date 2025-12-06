@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 import com.example.CineBook.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +47,6 @@ public class RoomServiceImpl implements RoomService {
         }
 
         Room room = roomMapper.toEntity(request);
-        room.setCapacity(0);
         Room saved = roomRepository.save(room);
         return roomMapper.toResponse(saved);
     }
@@ -65,6 +66,10 @@ public class RoomServiceImpl implements RoomService {
 
         if (!branchRepository.existsById(request.getBranchId())) {
             throw new BusinessException(MessageCode.BRANCH_NOT_FOUND);
+        }
+
+        if (!request.getName().equals(room.getName()) && roomRepository.existsByName(request.getName())) {
+            throw new BusinessException(MessageCode.ROOM_ALREADY_EXISTS);
         }
 
         roomMapper.updateEntity(request, room);
@@ -96,11 +101,27 @@ public class RoomServiceImpl implements RoomService {
         
         List<Seat> seats = seatRepository.findByRoomId(id);
         if (!seats.isEmpty()) {
-            List<UUID> seatIds = seats.stream().map(Seat::getId).collect(Collectors.toList());
-            seatRepository.deleteAllById(seatIds);
+            for (Seat seat : seats) {
+                seat.setIsDelete(true);
+            }
+            seatRepository.saveAll(seats);
         }
         
         roomRepository.softDeleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public RoomResponse restoreRoom(UUID id) {
+        if (!roomRepository.existsById(id)) {
+            throw new BusinessException(MessageCode.ROOM_NOT_FOUND);
+        }
+        
+        roomRepository.restoreById(id);
+        
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(MessageCode.ROOM_NOT_FOUND));
+        return roomMapper.toResponse(room);
     }
 
     @Override
@@ -116,7 +137,8 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public PageResponse<RoomResponse> searchRooms(RoomSearchDTO searchDTO) {
-        Page<Room> entityPage = roomRepository.findAllWithFilters(searchDTO);
+        Pageable pageable = PageRequest.of(searchDTO.getPage() - 1, searchDTO.getSize());
+        Page<Room> entityPage = roomRepository.searchWithFilters(searchDTO, pageable);
         Page<RoomResponse> responsePage = entityPage.map(roomMapper::toResponse);
         return PageResponse.of(responsePage);
     }

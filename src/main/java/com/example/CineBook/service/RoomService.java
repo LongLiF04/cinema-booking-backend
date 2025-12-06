@@ -14,6 +14,7 @@ public interface RoomService {
     RoomResponse updateRoom(UUID id, RoomRequest request);
     void deleteRoom(UUID id);
     void deleteRoomCascade(UUID id);
+    RoomResponse restoreRoom(UUID id);
     PageResponse<RoomResponse> searchRooms(RoomSearchDTO searchDTO);
     List<RoomResponse> getRoomsByBranch(UUID branchId);
 }
