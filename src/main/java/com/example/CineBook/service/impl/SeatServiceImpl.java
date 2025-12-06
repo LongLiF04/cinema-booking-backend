@@ -33,6 +33,11 @@ public class SeatServiceImpl implements SeatService {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new BusinessException(MessageCode.ROOM_NOT_FOUND));
 
+        // Check if room is delete
+        if (Boolean.TRUE.equals(room.getIsDelete())) {
+            throw new BusinessException(MessageCode.ROOM_NOT_FOUND);
+        }
+
         // Check if seat exists
         for (SeatRequest seatReq : request.getSeats()) {
             String rowChar = extractRowChar(seatReq.getSeatNumber());
