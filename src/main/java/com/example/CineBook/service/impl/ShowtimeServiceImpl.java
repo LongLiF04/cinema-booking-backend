@@ -262,7 +262,7 @@ public class ShowtimeServiceImpl implements ShowtimeService {
             if (!groupedByBranch.containsKey(branchId)) {
                 groupedByBranch.put(branchId, new ArrayList<>());
             }
-            groupedByBranch.get(branchId);
+            groupedByBranch.get(branchId).add(showtime);
         }
         
         return groupedByBranch.entrySet().stream()
